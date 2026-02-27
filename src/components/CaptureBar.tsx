@@ -37,7 +37,7 @@ function extractUrl(text: string): string | null {
 
 export function CaptureBar({
   onCreated,
-  placeholder = "Paste link, image, or type a thought...",
+  placeholder = "What's on your mind?",
   className,
 }: CaptureBarProps) {
   const [value, setValue] = useState("");
@@ -143,15 +143,18 @@ export function CaptureBar({
         disabled={isSubmitting}
         rows={1}
         className={cn(
-          "w-full resize-none rounded-lg border bg-[var(--bg-elevated)] px-4 py-3 text-[var(--fg)] placeholder:text-[var(--fg-muted)]",
-          "border-[var(--border)] focus:border-[var(--border-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--border-focus)]",
-          "min-h-[48px] max-h-[120px]"
+          "w-full resize-none rounded-2xl bg-[var(--bg-elevated)] backdrop-blur-sm",
+          "border border-[var(--border)]",
+          "px-5 py-4 text-lg text-[var(--fg)] placeholder:text-[var(--fg-muted)]",
+          "focus:border-[var(--border-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--border-focus)]",
+          "min-h-[56px] max-h-[140px]",
+          "tracking-tight"
         )}
-        aria-label="Capture anything"
+        aria-label="Capture"
       />
       {(isSubmitting || isFetchingOG) && (
-        <p className="text-xs text-[var(--fg-muted)] mt-1">
-          {isFetchingOG ? "Fetching preview…" : "Saving…"}
+        <p className="text-xs text-[var(--fg-muted)] mt-1.5 ml-1">
+          {isFetchingOG ? "Fetching…" : "Saving…"}
         </p>
       )}
     </div>

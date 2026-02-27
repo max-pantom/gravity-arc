@@ -4,10 +4,8 @@ import { useState, useMemo } from "react";
 import { CaptureBar } from "@/components/CaptureBar";
 import { RecallSection } from "@/components/RecallSection";
 import { ClusterView } from "@/components/ClusterView";
-import { MemoryGrid, type Density } from "@/components/MemoryGrid";
-import { DensitySlider } from "@/components/DensitySlider";
+import { SearchOverlay } from "@/components/SearchOverlay";
 import {
-  FastFilter,
   applyFilter,
   type FilterState,
 } from "@/components/FastFilter";
@@ -21,10 +19,19 @@ const DEFAULT_FILTER: FilterState = {
   status: "",
 };
 
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
 export default function Home() {
   const { state, loading, refresh } = useMemoryEngine();
-  const [density, setDensity] = useState<Density>("medium");
   const [filter, setFilter] = useState<FilterState>(DEFAULT_FILTER);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const nowMemories = state?.now.memories ?? [];
   const resurfacingMemories = state?.resurfacing.memories ?? [];
@@ -61,86 +68,78 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-dvh flex flex-col">
-        <header className="sticky top-0 z-[var(--z-sticky)] border-b border-[var(--border)] bg-[var(--bg)] px-4 py-3">
-          <h1 className="text-lg font-medium text-[var(--fg)]">Archive</h1>
-        </header>
-        <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6">
-          <div className="space-y-6 py-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] animate-pulse h-24"
-                aria-hidden
-              />
-            ))}
+      <main className="pt-16 px-10">
+          <div className="max-w-[1600px]">
+            <div className="space-y-6 py-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border)] animate-pulse h-32"
+                  aria-hidden
+                />
+              ))}
+            </div>
           </div>
-        </main>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-dvh flex flex-col">
-      <header className="sticky top-0 z-[var(--z-sticky)] border-b border-[var(--border)] bg-[var(--bg)] px-4 py-3">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <h1 className="text-lg font-medium text-[var(--fg)]">Archive</h1>
-          <DensitySlider value={density} onChange={setDensity} />
-        </div>
-      </header>
+    <main className="pt-16 px-10">
+        <div className="max-w-[1600px]">
+          <header className="flex items-center gap-6 mb-12">
+            <div className="flex-1 max-w-2xl">
+              <CaptureBar onCreated={refresh} />
+            </div>
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="p-2.5 rounded-xl text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-elevated)] transition-colors"
+              aria-label="Search"
+            >
+              <SearchIcon className="size-5" />
+            </button>
+          </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
-        <CaptureBar onCreated={refresh} />
-
-        {!isEmpty && (
-          <FastFilter
-            filter={filter}
-            onChange={setFilter}
-            domains={domains}
-          />
-        )}
-
-        {isEmpty ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-[var(--fg-muted)] text-pretty mb-2">
-              Paste a link, image, or type a thought.
-            </p>
-            <p className="text-sm text-[var(--fg-muted)]">
-              Archive surfaces what you forgot but needed.
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-8">
-            {filteredNow.length > 0 && (
+          {isEmpty ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <p className="text-[var(--fg-muted)] text-pretty text-lg tracking-tight mb-2">
+                Paste a link, image, or type a thought.
+              </p>
+              <p className="text-sm text-[var(--fg-muted)]">
+                Archive surfaces what you forgot but needed.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-12">
               <RecallSection
-                title="Now"
                 memories={filteredNow}
                 recallScores={recallScores}
-                density={density}
                 emptyMessage="Nothing recent."
               />
-            )}
-
-            {filteredResurfacing.length > 0 && (
               <RecallSection
-                title="Resurfacing"
                 memories={filteredResurfacing}
                 recallScores={recallScores}
-                density={density}
-                emptyMessage="Dormant ideas gaining weight."
+                emptyMessage=""
               />
-            )}
+              {clusters.map((cluster) => (
+                <ClusterView
+                  key={cluster.id}
+                  cluster={cluster}
+                  memoriesById={memoriesById}
+                />
+              ))}
+            </div>
+          )}
+      </div>
 
-            {clusters.map((cluster) => (
-              <ClusterView
-                key={cluster.id}
-                cluster={cluster}
-                memoriesById={memoriesById}
-              />
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+      <SearchOverlay
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        filter={filter}
+        onChange={setFilter}
+        domains={domains}
+      />
+    </main>
   );
 }

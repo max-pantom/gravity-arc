@@ -2,14 +2,17 @@
 
 :root,
 [data-theme="dark"] {
-  --bg: #0a0a0a;
-  --bg-elevated: #141414;
-  --fg: #e5e5e5;
-  --fg-muted: #737373;
-  --accent: #3b82f6;
-  --accent-muted: #93c5fd;
-  --border: #262626;
-  --border-focus: #3b82f6;
+  --bg: #0f1115;
+  --bg-edge: #0a0c10;
+  --bg-elevated: rgba(255, 255, 255, 0.03);
+  --fg: #e8e8e8;
+  --fg-muted: #6b6b6b;
+  --accent: #5b8def;
+  --accent-muted: #7ba3f0;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-focus: rgba(91, 141, 239, 0.5);
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --card-shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.4);
 }
 
 @theme inline {
@@ -27,7 +30,8 @@
 }
 
 body {
-  background: var(--bg);
+  background: radial-gradient(ellipse 120% 100% at 50% 0%, var(--bg) 0%, var(--bg-edge) 100%);
   color: var(--fg);
   font-family: var(--font-sans), system-ui, sans-serif;
+  letter-spacing: 0.01em;
 }

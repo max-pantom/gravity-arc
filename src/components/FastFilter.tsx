@@ -38,7 +38,7 @@ export function FastFilter({
         type="search"
         value={filter.query}
         onChange={(e) => onChange({ ...filter, query: e.target.value })}
-        placeholder="Filter..."
+        placeholder="Search my mind…"
         className={cn(
           "w-full rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2 text-sm",
           "text-[var(--fg)] placeholder:text-[var(--fg-muted)]",

@@ -101,107 +101,92 @@ export default function MemoryPage() {
 
   if (!memory) {
     return (
-      <div className="min-h-dvh flex flex-col">
-        <header className="border-b border-[var(--border)] bg-[var(--bg)] px-4 py-3">
-          <Link
-            href="/"
-            className="text-[var(--fg-muted)] hover:text-[var(--fg)] text-sm"
-          >
-            ← Archive
-          </Link>
-        </header>
-        <main className="flex-1 flex items-center justify-center">
-          <p className="text-[var(--fg-muted)]">Loading...</p>
-        </main>
-      </div>
+      <main className="pt-16 px-10 flex items-center justify-center min-h-[60dvh]">
+        <p className="text-[var(--fg-muted)]">Loading...</p>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-dvh flex flex-col">
-      <header className="sticky top-0 z-[var(--z-sticky)] border-b border-[var(--border)] bg-[var(--bg)] px-4 py-3 flex items-center justify-between">
+    <main className="pt-16 px-10">
+      <div className="max-w-[1600px]">
         <Link
           href="/"
-          className="text-[var(--fg-muted)] hover:text-[var(--fg)] text-sm"
+          className="inline-block text-[var(--fg-muted)] hover:text-[var(--fg)] text-sm mb-8 transition-colors"
           aria-label="Back to Archive"
         >
-          ← Archive
+          ← Back
         </Link>
-      </header>
 
-      <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-8">
-        <div className="flex flex-col gap-6">
+        <div className="max-w-2xl">
+          <div className="flex flex-col gap-8">
           <div
             className={cn(
-              "rounded-lg bg-[var(--bg-elevated)]",
+              "rounded-2xl bg-[var(--bg-elevated)] backdrop-blur-sm border border-[var(--border)]",
               "focus-within:ring-1 focus-within:ring-[var(--border-focus)]"
             )}
           >
-            <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-              {isEditing ? (
-                <div className="flex gap-1">
-                  {MEMORY_TYPES.map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => handleSave({ type: t })}
-                      className={cn(
-                        "px-2 py-0.5 text-xs rounded",
-                        memory.type === t
-                          ? "bg-[var(--accent)] text-white"
-                          : "text-[var(--fg-muted)] hover:text-[var(--fg)]"
-                      )}
-                    >
-                      {TYPE_LABELS[t]}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-xs font-medium text-[var(--fg-muted)] uppercase tracking-wide">
-                  {TYPE_LABELS[memory.type ?? "note"] ?? "Note"}
-                </span>
-              )}
-            </div>
+            {isEditing && (
+              <div className="px-5 pt-4 pb-2 flex flex-wrap gap-1">
+                {MEMORY_TYPES.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => handleSave({ type: t })}
+                    className={cn(
+                      "px-2.5 py-1 text-xs rounded-lg transition-colors",
+                      memory.type === t
+                        ? "bg-[var(--accent)] text-white"
+                        : "text-[var(--fg-muted)] hover:text-[var(--fg)]"
+                    )}
+                  >
+                    {TYPE_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+            )}
             {!isEditing && memory.type === "link" && memory.metadata?.image && (
-              <div className="px-4 pb-3">
+              <div className="px-5 pb-4">
                 <a
                   href={content.startsWith("http") ? content : undefined}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-lg overflow-hidden border border-[var(--border)]"
+                  className="block rounded-xl overflow-hidden border border-[var(--border)]"
                 >
                   <img
                     src={memory.metadata.image}
                     alt=""
-                    className="w-full max-h-64 object-cover"
+                    className="w-full max-h-72 object-cover"
                   />
                 </a>
               </div>
             )}
             {!isEditing && memory.type === "image" && content.startsWith("data:image") && (
-              <div className="px-4 pb-3">
+              <div className="px-5 pb-4">
                 <img
                   src={content}
                   alt=""
-                  className="max-w-full max-h-[60dvh] object-contain rounded-lg"
+                  className="max-w-full max-h-[60dvh] object-contain rounded-xl"
                 />
               </div>
             )}
             {isEditing ? (
-              <MemoryEditor
-                value={content}
-                onChange={setContent}
-                onSave={(c) => handleSave({ content: c })}
-                sourceMemoryId={id}
-                disabled={isSaving}
-              />
+              <div className="px-5 pb-4">
+                <MemoryEditor
+                  value={content}
+                  onChange={setContent}
+                  onSave={(c) => handleSave({ content: c })}
+                  sourceMemoryId={id}
+                  disabled={isSaving}
+                />
+              </div>
             ) : (
               <div
                 role="button"
                 tabIndex={0}
                 onClick={() => setIsEditing(true)}
                 onKeyDown={(e) => e.key === "Enter" && setIsEditing(true)}
-                className="px-4 py-3 min-h-[200px] cursor-text text-[var(--fg)] text-pretty whitespace-pre-wrap"
+                className="px-5 py-4 min-h-[200px] cursor-text text-[var(--fg)] text-pretty whitespace-pre-wrap leading-relaxed"
               >
                 {content ? (
                   <WikiLinkContent
@@ -216,8 +201,8 @@ export default function MemoryPage() {
           </div>
 
           {related.length > 0 && (
-            <section className="border-t border-[var(--border)] pt-6">
-              <h2 className="text-sm font-medium text-[var(--fg-muted)] mb-3">
+            <section className="pt-8">
+              <h2 className="text-xs font-medium text-[var(--fg-muted)] uppercase tracking-wide mb-3">
                 Related
               </h2>
               <div className="flex flex-col gap-2">
@@ -226,8 +211,8 @@ export default function MemoryPage() {
                     key={r.id}
                     href={`/memory/${r.id}`}
                     className={cn(
-                      "block rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3",
-                      "hover:border-[var(--accent-muted)] transition-colors"
+                      "block rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] backdrop-blur-sm px-4 py-3",
+                      "hover:-translate-y-0.5 transition-all duration-150"
                     )}
                   >
                     <p className="text-[var(--fg)] text-pretty line-clamp-2">
@@ -238,8 +223,9 @@ export default function MemoryPage() {
               </div>
             </section>
           )}
+          </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
