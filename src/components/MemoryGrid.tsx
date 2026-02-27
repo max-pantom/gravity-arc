@@ -17,15 +17,15 @@ export function MemoryGrid({
 }: MemoryGridProps) {
   return (
     <div
-      className={cn("gap-6", className)}
+      className={cn("", className)}
       style={{
-        columnCount: "auto",
-        columnWidth: "min(340px, 100%)",
+        columns: "320px",
+        columnGap: "20px",
         columnFill: "balance" as const,
       }}
     >
       {memories.map((memory) => (
-        <div key={memory.id} className="break-inside-avoid mb-6">
+        <div key={memory.id} className="break-inside-avoid mb-5">
           <RichLinkCard
             memory={memory}
             recallScore={recallScores.get(memory.id)}

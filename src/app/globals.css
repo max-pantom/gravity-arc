@@ -2,17 +2,21 @@
 
 :root,
 [data-theme="dark"] {
+  --bg-top: #12141a;
   --bg: #0f1115;
-  --bg-edge: #0a0c10;
-  --bg-elevated: rgba(255, 255, 255, 0.03);
-  --fg: #e8e8e8;
-  --fg-muted: #6b6b6b;
+  --bg-bottom: #0a0c10;
+  --bg-elevated: rgba(255, 255, 255, 0.025);
+  --fg: #e6e6e6;
+  --fg-muted: #6a6a6a;
   --accent: #5b8def;
   --accent-muted: #7ba3f0;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-focus: rgba(91, 141, 239, 0.5);
+  --border: rgba(255, 255, 255, 0.05);
+  --border-focus: rgba(91, 141, 239, 0.4);
+  --card-shadow-light: 0 8px 24px rgba(0, 0, 0, 0.25);
   --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  --card-shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.4);
+  --card-shadow-heavy: 0 14px 40px rgba(0, 0, 0, 0.4);
+  --card-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.45);
+  --capture-glow: rgba(91, 141, 239, 0.08);
 }
 
 @theme inline {
@@ -30,8 +34,14 @@
 }
 
 body {
-  background: radial-gradient(ellipse 120% 100% at 50% 0%, var(--bg) 0%, var(--bg-edge) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--bg-top) 0%,
+    var(--bg) 40%,
+    var(--bg-bottom) 100%
+  );
+  min-height: 100dvh;
   color: var(--fg);
   font-family: var(--font-sans), system-ui, sans-serif;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.012em;
 }

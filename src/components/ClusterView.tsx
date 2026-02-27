@@ -6,6 +6,10 @@ import type { MemoryUnit } from "@/lib/db/schema";
 import { extractTitle } from "@/storage/indexedDbAdapter";
 import { cn } from "@/lib/cn";
 
+function getDisplayTitle(memory: MemoryUnit): string {
+  return memory.metadata?.title ?? extractTitle(memory.content);
+}
+
 interface ClusterViewProps {
   cluster: Cluster;
   memoriesById: Map<string, MemoryUnit>;
@@ -21,20 +25,20 @@ export function ClusterView({ cluster, memoriesById, className }: ClusterViewPro
 
   return (
     <section className={cn("", className)}>
-      <h2 className="text-sm font-medium text-[var(--fg-muted)] mb-3">
+      <h2 className="text-xs font-medium text-[var(--fg-muted)] uppercase tracking-wide mb-4">
         {cluster.label}
       </h2>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-3">
         {items.map((memory) => (
           <Link
             key={memory.id}
             href={`/memory/${memory.id}`}
             className={cn(
-              "inline-flex items-center rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] backdrop-blur-sm px-3 py-2 text-sm",
-              "hover:-translate-y-0.5 transition-all duration-150"
+              "inline-flex items-center rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] backdrop-blur-[8px] px-4 py-2.5 text-sm",
+              "hover:-translate-y-0.5 transition-all duration-[220ms] ease-out"
             )}
           >
-            {extractTitle(memory.content)}
+            {getDisplayTitle(memory)}
           </Link>
         ))}
       </div>

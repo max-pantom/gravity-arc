@@ -8,13 +8,13 @@ export function useMemoryEngine() {
   const [state, setState] = useState<HomeState | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
+  const refresh = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const homeState = await getHomeState();
       setState(homeState);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
@@ -23,7 +23,7 @@ export function useMemoryEngine() {
   }, [refresh]);
 
   useEffect(() => {
-    const onFocus = () => refresh();
+    const onFocus = () => refresh(true);
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [refresh]);

@@ -5,20 +5,24 @@ import type { MemoryUnit } from "@/lib/db/schema";
 import { extractTitle } from "@/storage/indexedDbAdapter";
 import { cn } from "@/lib/cn";
 
-const TYPE_DOT: Record<string, string> = {
-  idea: "bg-amber-500/60",
-  project: "bg-emerald-500/60",
-  note: "bg-slate-400/50",
-  design: "bg-violet-500/60",
-  link: "bg-blue-500/60",
-  image: "bg-rose-500/60",
-  experiment: "bg-cyan-500/60",
-};
-
 interface RichLinkCardProps {
   memory: MemoryUnit;
   recallScore?: number;
   className?: string;
+}
+
+function getCardWeight(recallScore: number, hasImage: boolean): "light" | "medium" | "heavy" {
+  if (hasImage && recallScore > 0.4) return "heavy";
+  if (recallScore > 0.25 || hasImage) return "medium";
+  return "light";
+}
+
+function extractDomain(url: string): string | undefined {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return undefined;
+  }
 }
 
 export function RichLinkCard({
@@ -32,34 +36,62 @@ export function RichLinkCard({
       ? memory.content
       : meta?.image;
   const title = meta?.title ?? extractTitle(memory.content);
-  const domain = meta?.domain;
-  const dotColor = TYPE_DOT[memory.type ?? "note"] ?? "bg-slate-400/40";
+  const domain = meta?.domain ?? (memory.type === "link" ? extractDomain(memory.content) : undefined);
+  const weight = getCardWeight(recallScore, !!imageSrc);
+
+  const shadowClass = {
+    light: "shadow-[var(--card-shadow-light)]",
+    medium: "shadow-[var(--card-shadow)]",
+    heavy: "shadow-[var(--card-shadow-heavy)]",
+  }[weight];
+
+  const paddingClass = {
+    light: "p-4",
+    medium: "p-4",
+    heavy: "p-5",
+  }[weight];
+
+  const isImageOnly = memory.type === "image";
 
   return (
     <Link
       href={`/memory/${memory.id}`}
       className={cn(
-        "block rounded-2xl overflow-hidden flex flex-col",
-        "bg-[var(--bg-elevated)] backdrop-blur-sm",
-        "border border-[var(--border)]",
-        "shadow-[var(--card-shadow)]",
-        "transition-all duration-150 ease-out",
+        "w-full max-w-[360px] rounded-2xl overflow-hidden flex flex-col",
+        "bg-[rgba(255,255,255,0.025)] backdrop-blur-[8px]",
+        "border border-[rgba(255,255,255,0.05)]",
+        shadowClass,
+        "transition-all duration-[260ms] ease-out",
         "hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 hover:scale-[1.01]",
-        "p-4 min-h-[120px]",
+        !isImageOnly && paddingClass,
+        isImageOnly ? "min-h-0 p-0" : "min-h-[100px]",
         className
       )}
     >
       {imageSrc && (
-        <div className="w-full -mx-4 -mt-4 mb-3 rounded-t-2xl overflow-hidden bg-black/20">
+        <div
+          className={cn(
+            "overflow-hidden bg-black/10 shrink-0",
+            isImageOnly
+              ? "w-full rounded-2xl"
+              : "w-[calc(100%+2rem)] -mx-4 -mt-4 mb-3 aspect-[1.91/1] rounded-t-2xl"
+          )}
+        >
           <img
             src={imageSrc}
             alt=""
-            className="w-full h-36 object-cover"
+            className={cn(
+              "block w-full",
+              isImageOnly
+                ? "h-auto max-h-[400px] object-contain"
+                : "h-full object-cover"
+            )}
             loading="lazy"
           />
         </div>
       )}
 
+      {!isImageOnly && (
       <div className="flex items-start justify-between gap-2 flex-1 min-w-0">
         <div className="min-w-0 flex-1">
           {domain && (
@@ -68,7 +100,7 @@ export function RichLinkCard({
                 <img
                   src={meta.favicon}
                   alt=""
-                  className="size-4 rounded-sm shrink-0 opacity-80"
+                  className="size-4 rounded-sm shrink-0 opacity-70"
                 />
               )}
               <span className="text-xs text-[var(--fg-muted)] truncate">
@@ -85,17 +117,8 @@ export function RichLinkCard({
             </p>
           )}
         </div>
-        <span
-          className={cn("size-1.5 rounded-full shrink-0 mt-1.5", dotColor)}
-          aria-hidden
-        />
       </div>
-
-      <div className="flex items-center justify-end mt-3">
-        <span className="text-xs text-[var(--fg-muted)] tabular-nums">
-          {new Date(memory.updated_at).toLocaleDateString()}
-        </span>
-      </div>
+      )}
     </Link>
   );
 }

@@ -161,8 +161,14 @@ export default function MemoryPage() {
                 </a>
               </div>
             )}
-            {!isEditing && memory.type === "image" && content.startsWith("data:image") && (
-              <div className="px-5 pb-4">
+            {!isEditing && memory.type === "image" && (content.startsWith("data:image") || content.startsWith("http")) && (
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setIsEditing(true)}
+                onKeyDown={(e) => e.key === "Enter" && setIsEditing(true)}
+                className="px-5 pb-4 cursor-text"
+              >
                 <img
                   src={content}
                   alt=""
@@ -180,7 +186,7 @@ export default function MemoryPage() {
                   disabled={isSaving}
                 />
               </div>
-            ) : (
+            ) : memory.type !== "image" && (
               <div
                 role="button"
                 tabIndex={0}

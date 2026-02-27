@@ -97,7 +97,7 @@ export function FastFilter({
   );
 }
 
-export function applyFilter<T extends { type?: string; status?: string; metadata?: { domain?: string }; content: string }>(
+export function applyFilter<T extends { type?: string; status?: string; metadata?: { domain?: string; title?: string; description?: string }; content: string }>(
   items: T[],
   filter: FilterState
 ): T[] {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
+import type { MemoryUnit } from "@/lib/db/schema";
 import { createMemoryUnit } from "@/engine/memoryEngine";
-import { createMemory } from "@/storage/indexedDbAdapter";
+import { createMemory, updateMemory } from "@/storage/indexedDbAdapter";
 import { cn } from "@/lib/cn";
 
 interface CaptureBarProps {
@@ -13,6 +13,11 @@ interface CaptureBarProps {
 }
 
 const URL_REGEX = /https?:\/\/[^\s]+/gi;
+const IMAGE_URL_REGEX = /\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i;
+
+function isImageUrl(url: string): boolean {
+  return IMAGE_URL_REGEX.test(url);
+}
 
 async function fetchOG(url: string): Promise<{
   title?: string;
@@ -37,13 +42,12 @@ function extractUrl(text: string): string | null {
 
 export function CaptureBar({
   onCreated,
-  placeholder = "What's on your mind?",
+  placeholder = "Drop a thought into the arc…",
   className,
 }: CaptureBarProps) {
   const [value, setValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFetchingOG, setIsFetchingOG] = useState(false);
-  const router = useRouter();
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const submit = useCallback(
@@ -53,15 +57,27 @@ export function CaptureBar({
 
       setIsSubmitting(true);
       try {
-        let memory;
+        let memory: MemoryUnit;
 
         if (type === "link") {
           const url = extractUrl(trimmed);
           if (url) {
-            setIsFetchingOG(true);
-            const meta = await fetchOG(url);
-            setIsFetchingOG(false);
-            memory = await createMemory(trimmed, "link", undefined, meta ?? undefined);
+            if (isImageUrl(url)) {
+              memory = await createMemory(url, "image");
+            } else {
+              memory = await createMemory(trimmed, "link");
+              setValue("");
+              onCreated?.(memory.id);
+              setIsSubmitting(false);
+              fetchOG(url).then((meta) => {
+                if (meta) {
+                  updateMemory(memory.id, { metadata: meta }).then(() => {
+                    onCreated?.(memory.id);
+                  });
+                }
+              });
+              return;
+            }
           } else {
             memory = await createMemoryUnit(trimmed);
           }
@@ -73,28 +89,28 @@ export function CaptureBar({
 
         setValue("");
         onCreated?.(memory.id);
-        router.push(`/memory/${memory.id}`);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [isSubmitting, onCreated, router]
+    [isSubmitting, onCreated]
   );
 
   const handlePaste = useCallback(
-    async (e: React.ClipboardEvent) => {
+    (e: React.ClipboardEvent) => {
       const items = e.clipboardData?.items;
       if (!items) return;
 
-      for (const item of items) {
-        if (item.type.startsWith("image/")) {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === "file" && item.type.startsWith("image/")) {
           e.preventDefault();
           const file = item.getAsFile();
           if (file) {
             const reader = new FileReader();
-            reader.onload = async () => {
+            reader.onload = () => {
               const dataUrl = reader.result as string;
-              await submit(dataUrl, "image");
+              submit(dataUrl, "image");
             };
             reader.readAsDataURL(file);
           }
@@ -105,15 +121,37 @@ export function CaptureBar({
       const text = e.clipboardData?.getData("text");
       if (text && URL_REGEX.test(text)) {
         const url = extractUrl(text);
-        if (url && text.trim() === url) {
+        if (url && text.trim() === url && isImageUrl(url)) {
           e.preventDefault();
-          await submit(url, "link");
+          submit(url, "image");
           return;
         }
       }
     },
     [submit]
   );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const files = e.dataTransfer?.files;
+      if (!files?.length) return;
+      const file = files[0];
+      if (!file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        submit(dataUrl, "image");
+      };
+      reader.readAsDataURL(file);
+    },
+    [submit]
+  );
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer!.dropEffect = "copy";
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -133,29 +171,38 @@ export function CaptureBar({
 
   return (
     <div className={cn("w-full", className)}>
-      <textarea
-        ref={inputRef}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onPaste={handlePaste}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        disabled={isSubmitting}
-        rows={1}
+      <div
         className={cn(
-          "w-full resize-none rounded-2xl bg-[var(--bg-elevated)] backdrop-blur-sm",
-          "border border-[var(--border)]",
-          "px-5 py-4 text-lg text-[var(--fg)] placeholder:text-[var(--fg-muted)]",
-          "focus:border-[var(--border-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--border-focus)]",
-          "min-h-[56px] max-h-[140px]",
-          "tracking-tight"
+          "rounded-2xl p-1 -m-1 transition-all duration-[260ms] ease-out",
+          isFocused && "bg-[var(--capture-glow)] rounded-2xl"
         )}
-        aria-label="Capture"
-      />
-      {(isSubmitting || isFetchingOG) && (
-        <p className="text-xs text-[var(--fg-muted)] mt-1.5 ml-1">
-          {isFetchingOG ? "Fetching…" : "Saving…"}
-        </p>
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+      >
+        <textarea
+          ref={inputRef}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onPaste={handlePaste}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder={placeholder}
+          disabled={isSubmitting}
+          rows={1}
+          className={cn(
+            "w-full resize-none rounded-2xl bg-[var(--bg-elevated)] backdrop-blur-[8px]",
+            "border border-[var(--border)]",
+            "px-6 py-6 text-2xl text-[var(--fg)] placeholder:text-[var(--fg-muted)]",
+            "focus:border-[var(--border-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--border-focus)]",
+            "min-h-[80px] max-h-[200px]",
+            "tracking-tight"
+          )}
+          aria-label="Capture"
+        />
+      </div>
+      {isSubmitting && (
+        <p className="text-xs text-[var(--fg-muted)] mt-2 ml-1">Saving…</p>
       )}
     </div>
   );
