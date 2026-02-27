@@ -1,13 +1,14 @@
 "use client";
 
 import type { MemoryUnit } from "@/lib/db/schema";
-import { MemoryCard } from "./MemoryCard";
+import { MemoryGrid, type Density } from "./MemoryGrid";
 import { cn } from "@/lib/cn";
 
 interface RecallSectionProps {
   title: string;
   memories: MemoryUnit[];
   recallScores?: Map<string, number>;
+  density?: Density;
   emptyMessage?: string;
   className?: string;
 }
@@ -16,6 +17,7 @@ export function RecallSection({
   title,
   memories,
   recallScores = new Map(),
+  density = "medium",
   emptyMessage = "Nothing here yet.",
   className,
 }: RecallSectionProps) {
@@ -31,15 +33,11 @@ export function RecallSection({
   return (
     <section className={cn("", className)}>
       <h2 className="text-sm font-medium text-[var(--fg-muted)] mb-3">{title}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {memories.map((memory) => (
-          <MemoryCard
-            key={memory.id}
-            memory={memory}
-            recallScore={recallScores.get(memory.id)}
-          />
-        ))}
-      </div>
+      <MemoryGrid
+        memories={memories}
+        recallScores={recallScores}
+        density={density}
+      />
     </section>
   );
 }

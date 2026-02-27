@@ -22,6 +22,7 @@ const TYPE_LABELS: Record<string, string> = {
   design: "Design",
   experiment: "Experiment",
   link: "Link",
+  image: "Image",
 };
 
 const MEMORY_TYPES: MemoryType[] = [
@@ -31,6 +32,7 @@ const MEMORY_TYPES: MemoryType[] = [
   "design",
   "experiment",
   "link",
+  "image",
 ];
 
 export default function MemoryPage() {
@@ -160,6 +162,31 @@ export default function MemoryPage() {
                 </span>
               )}
             </div>
+            {!isEditing && memory.type === "link" && memory.metadata?.image && (
+              <div className="px-4 pb-3">
+                <a
+                  href={content.startsWith("http") ? content : undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-lg overflow-hidden border border-[var(--border)]"
+                >
+                  <img
+                    src={memory.metadata.image}
+                    alt=""
+                    className="w-full max-h-64 object-cover"
+                  />
+                </a>
+              </div>
+            )}
+            {!isEditing && memory.type === "image" && content.startsWith("data:image") && (
+              <div className="px-4 pb-3">
+                <img
+                  src={content}
+                  alt=""
+                  className="max-w-full max-h-[60dvh] object-contain rounded-lg"
+                />
+              </div>
+            )}
             {isEditing ? (
               <MemoryEditor
                 value={content}

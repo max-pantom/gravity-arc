@@ -147,7 +147,8 @@ function withDB<T>(fn: (db: IDBDatabase) => Promise<T>): Promise<T> {
 export async function createMemory(
   content: string,
   type: MemoryType = "note",
-  id?: string
+  id?: string,
+  metadata?: MemoryMetadata
 ): Promise<MemoryUnit> {
   const now = Date.now();
   const memory: MemoryUnit = {
@@ -162,6 +163,7 @@ export async function createMemory(
     link_count: 0,
     last_accessed: now,
     status: "active",
+    ...(metadata && { metadata }),
   };
 
   return withDB((db) => {
@@ -186,7 +188,7 @@ export async function getMemory(id: string): Promise<MemoryUnit | null> {
 
 export async function updateMemory(
   id: string,
-  updates: Partial<Pick<MemoryUnit, "content" | "type" | "status">>
+  updates: Partial<Pick<MemoryUnit, "content" | "type" | "status" | "metadata">>
 ): Promise<MemoryUnit | null> {
   const memory = await getMemory(id);
   if (!memory) return null;

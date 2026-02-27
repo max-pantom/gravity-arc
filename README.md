@@ -1,6 +1,6 @@
 # Archive
 
-A memory graph with temporal gravity.
+A visual memory system for builders — mymind's friction + structural intelligence.
 
 ## Quick Start
 
@@ -13,22 +13,31 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## What It Is
 
-Archive is not a wiki. It is a **cognition engine** — thoughts that gain weight and influence each other.
+Archive is a **living idea network**. Not a bucket. Not a wiki.
 
-- **Capture** — Type a thought. Press Enter. Type defines itself: short → Idea, checklist → Project, URL → Link.
-- **Now** — Recently created or edited.
-- **Resurfacing** — Dormant ideas gaining score through connection overlap.
-- **Clusters** — Auto-detected concept groups from the graph.
+- **Frictionless capture** — Paste link → OG preview. Paste image → image card. Type → idea or note. No type selector.
+- **Rich link cards** — Title, description, image, favicon, domain. Fetched automatically.
+- **Visual grid** — Masonry layout. Images large. Links large. Density control (Sparse ←→ Dense).
+- **Fast filter** — Instant. By type, domain, status. No separate data page.
+- **Cognitive engine** — Now, Resurfacing, Clusters. The system decides what you see.
 
-The engine decides what you see. Not recency alone. Not link count. Cognitive activity.
+## Capture Behavior
+
+| Paste / Input | Result |
+|---------------|--------|
+| URL only | Link card with OG metadata |
+| Image | Image card |
+| Short text (< 140 chars) | Idea |
+| Long text | Note |
+| Checklist pattern | Project |
 
 ## Linking
 
-Type `[[` to link. Search by title, pick or create. Content stores IDs; UI displays titles. Hover links for preview.
+Type `[[` to link. Search by title, pick or create. Hover for preview.
 
 ## Dev Mode
 
-`Cmd+Shift+D` — JSON export, logs, raw data. Surface stays clean.
+`Cmd+Shift+D` — Raw JSON, logs. Surface stays clean.
 
 ## Tech
 

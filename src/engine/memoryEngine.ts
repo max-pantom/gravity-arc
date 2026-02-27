@@ -97,6 +97,7 @@ export async function createMemoryUnit(
 
 export function inferType(content: string): MemoryType {
   const trimmed = content.trim();
+  if (trimmed.startsWith("data:image/")) return "image";
   if (trimmed.length < 140) return "idea";
   if (/^[\s]*[-*]\s+\[[\sx]\]/m.test(trimmed) || /^\d+\.\s+\[[\sx]\]/m.test(trimmed))
     return "project";
