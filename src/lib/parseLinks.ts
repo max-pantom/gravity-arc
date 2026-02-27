@@ -1,7 +1,7 @@
 export interface LinkPart {
   type: "text" | "link";
   content: string;
-  cardId?: string;
+  memoryId?: string;
 }
 
 export function parseWikiLinks(content: string): LinkPart[] {
@@ -25,7 +25,7 @@ export function parseWikiLinks(content: string): LinkPart[] {
     parts.push({
       type: "link",
       content: match[0],
-      cardId: isUuid ? id : undefined,
+      memoryId: isUuid ? id : undefined,
     });
     lastIndex = regex.lastIndex;
   }

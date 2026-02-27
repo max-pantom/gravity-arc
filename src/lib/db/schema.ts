@@ -1,35 +1,64 @@
-export type CardType =
+export type MemoryType =
   | "idea"
   | "project"
   | "note"
   | "design"
   | "experiment"
-  | "link";
+  | "link"
+  | "image";
 
-export interface Card {
+export type MemoryStatus = "active" | "dormant" | "archived" | "resurfacing";
+
+export interface MemoryMetadata {
+  title?: string;
+  description?: string;
+  image?: string;
+  favicon?: string;
+  domain?: string;
+}
+
+export interface MemoryUnit {
   id: string;
-  type: CardType;
+  type: MemoryType;
   content: string;
   created_at: number;
   updated_at: number;
-  visit_count: number;
+  energy_score: number;
+  attention_score: number;
+  recall_score: number;
+  link_count: number;
+  last_accessed: number;
+  status: MemoryStatus;
+  metadata?: MemoryMetadata;
 }
+
+export type ConnectionKind =
+  | "expands"
+  | "contradicts"
+  | "inspired_by"
+  | "next_step"
+  | "reference";
 
 export interface Connection {
   id: string;
-  source_id: string;
-  target_id: string;
+  from: string;
+  to: string;
+  kind: ConnectionKind;
+  strength: number;
   created_at: number;
 }
 
-export interface Visit {
-  id?: number;
-  card_id: string;
-  visited_at: number;
+export type EventType = "view" | "edit" | "link" | "revisit";
+
+export interface Event {
+  id: string;
+  memory_id: string;
+  event_type: EventType;
+  timestamp: number;
 }
 
 export const DB_NAME = "archive-db";
-export const DB_VERSION = 1;
-export const CARDS_STORE = "cards";
-export const CONNECTIONS_STORE = "connections";
-export const VISITS_STORE = "visits";
+export const DB_VERSION = 4;
+export const MEMORIES_STORE = "memories";
+export const CONNECTIONS_STORE = "conns";
+export const EVENTS_STORE = "events";

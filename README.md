@@ -1,50 +1,42 @@
 # Archive
 
-External cognition — ideas that collide.
+A memory graph with temporal gravity.
 
 ## Quick Start
 
 ```bash
-# Install dependencies
 npm install
-
-# Web (development)
 npm run dev
-
-# Web (production)
-npm run build && npm start
-
-# Electron (development — run in two terminals)
-# Terminal 1:
-npm run dev
-
-# Terminal 2:
-ELECTRON_DEV=true electron .
-
-# Or use the combined script:
-npm run electron:start
-
-# Electron (production)
-npm run electron:dev
 ```
 
-## Features
+Open [http://localhost:3000](http://localhost:3000).
 
-- **Capture** — Single input, instant card creation. Press Enter to create.
-- **Timeline** — Default home. Cards ordered chronologically.
-- **Card View** — Focused read/edit. Click to edit, blur or Cmd+Enter to save.
-- **Connections** — Type `[[` to link cards. Inline autocomplete: pick existing or create new.
-- **Recall** — Related cards appear below after you edit, based on connections.
-- **Themes** — ghost, vine, light, dark, void.
+## What It Is
 
-## Tech Stack
+Archive is not a wiki. It is a **cognition engine** — thoughts that gain weight and influence each other.
 
-- Next.js 15 (App Router)
-- Tailwind CSS
+- **Capture** — Type a thought. Press Enter. Type defines itself: short → Idea, checklist → Project, URL → Link.
+- **Now** — Recently created or edited.
+- **Resurfacing** — Dormant ideas gaining score through connection overlap.
+- **Clusters** — Auto-detected concept groups from the graph.
+
+The engine decides what you see. Not recency alone. Not link count. Cognitive activity.
+
+## Linking
+
+Type `[[` to link. Search by title, pick or create. Content stores IDs; UI displays titles. Hover links for preview.
+
+## Dev Mode
+
+`Cmd+Shift+D` — JSON export, logs, raw data. Surface stays clean.
+
+## Tech
+
+- Next.js 16, React 19, Tailwind 4
 - IndexedDB (local-first)
-- Electron (desktop)
-- motion, Radix UI primitives
+- Electron (desktop wrapper)
 
-## Data
+## Roadmap
 
-All data is stored locally in IndexedDB. No cloud, no account. Your memory stays on your device.
+- **v1.5** — Graph morph on spacebar, energy glow
+- **v2** — SQLite, optional sync, semantic search

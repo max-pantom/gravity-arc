@@ -8,37 +8,37 @@ import {
   useMemo,
 } from "react";
 import {
-  searchCards,
-  createCard,
+  searchMemories,
+  createMemory,
   createConnection,
   extractTitle,
-} from "@/lib/db";
-import type { Card } from "@/lib/db/schema";
+} from "@/storage/indexedDbAdapter";
+import type { MemoryUnit } from "@/lib/db/schema";
 import { cn } from "@/lib/cn";
 
-export interface CardEditorProps {
+export interface MemoryEditorProps {
   value: string;
   onChange: (value: string) => void;
   onSave?: (content: string) => void;
-  sourceCardId: string;
+  sourceMemoryId: string;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
 }
 
-export function CardEditor({
+export function MemoryEditor({
   value,
   onChange,
   onSave,
-  sourceCardId,
+  sourceMemoryId,
   placeholder,
   className,
   disabled,
-}: CardEditorProps) {
+}: MemoryEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<Card[]>([]);
+  const [suggestions, setSuggestions] = useState<MemoryUnit[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -47,7 +47,7 @@ export function CardEditor({
       setSuggestions([]);
       return;
     }
-    const results = await searchCards(q, 10);
+    const results = await searchMemories(q, 10);
     setSuggestions(results);
     setSelectedIndex(0);
   }, []);
@@ -80,15 +80,15 @@ export function CardEditor({
   }, [triggerStart, triggerEnd, value]);
 
   const insertLink = useCallback(
-    async (title: string, cardId?: string) => {
+    async (title: string, memoryId?: string) => {
       if (!textareaRef.current) return;
 
-      let targetId = cardId;
+      let targetId = memoryId;
       if (!targetId) {
-        const newCard = await createCard(title, "note");
-        targetId = newCard.id;
+        const newMemory = await createMemory(title, "note");
+        targetId = newMemory.id;
       }
-      await createConnection(sourceCardId, targetId);
+      await createConnection(sourceMemoryId, targetId);
 
       const before = value.slice(0, triggerStart);
       const after = value.slice(triggerEnd);
@@ -104,7 +104,7 @@ export function CardEditor({
         textareaRef.current?.setSelectionRange(pos, pos);
       }, 0);
     },
-    [value, triggerStart, triggerEnd, sourceCardId, onChange, onSave]
+    [value, triggerStart, triggerEnd, sourceMemoryId, onChange, onSave]
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -155,7 +155,7 @@ export function CardEditor({
           "w-full min-h-[200px] resize-none rounded-lg bg-transparent px-4 py-3 text-[var(--fg)]",
           "border border-[var(--border)] focus:border-[var(--border-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--border-focus)]"
         )}
-        aria-label="Edit card content"
+        aria-label="Edit memory content"
       />
 
       {showAutocomplete && (
@@ -166,12 +166,12 @@ export function CardEditor({
             "p-1"
           )}
         >
-          {suggestions.map((card, i) => (
+          {suggestions.map((mem, i) => (
             <button
-              key={card.id}
+              key={mem.id}
               type="button"
               onClick={() =>
-                insertLink(extractTitle(card.content), card.id)
+                insertLink(extractTitle(mem.content), mem.id)
               }
               className={cn(
                 "w-full text-left px-3 py-2 rounded-md cursor-pointer text-sm block",
@@ -179,7 +179,7 @@ export function CardEditor({
                 i === selectedIndex && "bg-[var(--accent-muted)]"
               )}
             >
-              {extractTitle(card.content)}
+              {extractTitle(mem.content)}
             </button>
           ))}
           {query.trim() && (
