@@ -25,7 +25,7 @@ export function MemoryGrid({
       }}
     >
       {memories.map((memory) => (
-        <div key={memory.id} className="break-inside-avoid mb-5">
+        <div key={memory.id} className="break-inside-avoid mb-4 w-full">
           <RichLinkCard
             memory={memory}
             recallScore={recallScores.get(memory.id)}

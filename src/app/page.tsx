@@ -3,11 +3,7 @@
 import { useState, useMemo } from "react";
 import { CaptureBar } from "@/components/CaptureBar";
 import { MemoryGrid } from "@/components/MemoryGrid";
-import { SearchOverlay } from "@/components/SearchOverlay";
-import {
-  applyFilter,
-  type FilterState,
-} from "@/components/FastFilter";
+import { applyFilter, type FilterState } from "@/components/FastFilter";
 import { useMemoryEngine } from "@/hooks/useMemoryEngine";
 
 const DEFAULT_FILTER: FilterState = {
@@ -17,19 +13,9 @@ const DEFAULT_FILTER: FilterState = {
   status: "",
 };
 
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
-
 export default function Home() {
   const { state, loading, refresh } = useMemoryEngine();
-  const [filter, setFilter] = useState<FilterState>(DEFAULT_FILTER);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [filter] = useState<FilterState>(DEFAULT_FILTER);
 
   const nowMemories = state?.now.memories ?? [];
   const resurfacingMemories = state?.resurfacing.memories ?? [];
@@ -47,14 +33,6 @@ export default function Home() {
     return out;
   }, [nowMemories, resurfacingMemories]);
 
-  const domains = useMemo(() => {
-    const set = new Set<string>();
-    for (const m of allMemories) {
-      if (m.metadata?.domain) set.add(m.metadata.domain);
-    }
-    return Array.from(set).sort();
-  }, [allMemories]);
-
   const filteredMemories = useMemo(
     () => applyFilter(allMemories, filter),
     [allMemories, filter]
@@ -64,7 +42,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <main className="pt-12 pl-[72px] pr-[72px]">
+      <main className="pt-6 pl-[72px] pr-[72px]">
         <div
           className="py-12"
           style={{
@@ -76,7 +54,7 @@ export default function Home() {
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div
               key={i}
-              className="break-inside-avoid mb-5 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border)] animate-pulse h-32 max-w-[360px]"
+              className="break-inside-avoid mb-4 w-full rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border)] animate-pulse h-32"
               aria-hidden
             />
           ))}
@@ -86,19 +64,11 @@ export default function Home() {
   }
 
   return (
-    <main className="pt-12 pl-[72px] pr-[72px] max-w-none">
-      <header className="flex items-start gap-3 mb-20">
+    <main className="pt-6 pl-[72px] pr-[72px] max-w-none">
+      <header className="flex items-start gap-3 mb-12">
         <div className="flex-1 min-w-0">
           <CaptureBar onCreated={() => refresh(true)} />
         </div>
-        <button
-          type="button"
-          onClick={() => setSearchOpen(true)}
-          className="p-2.5 rounded-xl text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-elevated)] transition-all duration-[220ms] ease-out shrink-0"
-          aria-label="Search"
-        >
-          <SearchIcon className="size-[18px]" />
-        </button>
       </header>
 
       {isEmpty ? (
@@ -116,14 +86,6 @@ export default function Home() {
           recallScores={recallScores}
         />
       )}
-
-      <SearchOverlay
-        open={searchOpen}
-        onClose={() => setSearchOpen(false)}
-        filter={filter}
-        onChange={setFilter}
-        domains={domains}
-      />
     </main>
   );
 }

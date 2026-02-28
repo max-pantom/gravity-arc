@@ -57,7 +57,7 @@ export function RichLinkCard({
     <Link
       href={`/memory/${memory.id}`}
       className={cn(
-        "w-full max-w-[360px] rounded-2xl overflow-hidden flex flex-col",
+        "w-full max-w-full rounded-2xl overflow-hidden flex flex-col",
         "bg-[rgba(255,255,255,0.025)] backdrop-blur-[8px]",
         "border border-[rgba(255,255,255,0.05)]",
         shadowClass,
