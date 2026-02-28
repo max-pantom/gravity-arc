@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Agentation } from "agentation";
 import "./globals.css";
 import { DevModeProvider } from "@/components/DevModeProvider";
 import { LayoutShell } from "@/components/LayoutShell";
@@ -32,6 +33,7 @@ export default function RootLayout({
         <DevModeProvider>
           <LayoutShell>{children}</LayoutShell>
         </DevModeProvider>
+        {process.env.NODE_ENV === "development" && <Agentation />}
       </body>
     </html>
   );
