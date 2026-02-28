@@ -193,9 +193,9 @@ export function CaptureBar({
           className={cn(
             "w-full resize-none rounded-2xl bg-[var(--bg-elevated)] backdrop-blur-[8px]",
             "border border-[var(--border)]",
-            "px-6 py-6 text-2xl text-[var(--fg)] placeholder:text-[var(--fg-muted)]",
+            "px-4 py-4 text-xl text-[var(--fg)] placeholder:text-[var(--fg-muted)]",
             "focus:border-[var(--border-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--border-focus)]",
-            "min-h-[80px] max-h-[200px]",
+            "min-h-[64px] max-h-[180px]",
             "tracking-tight"
           )}
           aria-label="Capture"

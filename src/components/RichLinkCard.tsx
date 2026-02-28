@@ -46,9 +46,9 @@ export function RichLinkCard({
   }[weight];
 
   const paddingClass = {
-    light: "p-4",
-    medium: "p-4",
-    heavy: "p-5",
+    light: "p-3",
+    medium: "p-3",
+    heavy: "p-4",
   }[weight];
 
   const isImageOnly = memory.type === "image";
@@ -64,7 +64,7 @@ export function RichLinkCard({
         "transition-all duration-[260ms] ease-out",
         "hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 hover:scale-[1.01]",
         !isImageOnly && paddingClass,
-        isImageOnly ? "min-h-0 p-0" : "min-h-[100px]",
+        isImageOnly ? "min-h-0 p-0" : "min-h-[80px]",
         className
       )}
     >
@@ -74,7 +74,7 @@ export function RichLinkCard({
             "overflow-hidden bg-black/10 shrink-0",
             isImageOnly
               ? "w-full rounded-2xl"
-              : "w-[calc(100%+2rem)] -mx-4 -mt-4 mb-3 aspect-[1.91/1] rounded-t-2xl"
+              : "w-[calc(100%+1.5rem)] -mx-3 -mt-3 mb-2 aspect-[1.91/1] rounded-t-2xl"
           )}
         >
           <img

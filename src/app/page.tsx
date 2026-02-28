@@ -15,7 +15,7 @@ const DEFAULT_FILTER: FilterState = {
 
 export default function Home() {
   const { state, loading, refresh } = useMemoryEngine();
-  const [filter] = useState<FilterState>(DEFAULT_FILTER);
+  const [filter, setFilter] = useState<FilterState>(DEFAULT_FILTER);
 
   const nowMemories = state?.now.memories ?? [];
   const resurfacingMemories = state?.resurfacing.memories ?? [];
@@ -38,23 +38,21 @@ export default function Home() {
     [allMemories, filter]
   );
 
-  const isEmpty = allMemories.length === 0;
-
   if (loading) {
     return (
-      <main className="pt-6 pl-[72px] pr-[72px]">
+      <main className="pt-4 pl-[48px] pr-[48px]">
         <div
-          className="py-12"
+          className="py-6"
           style={{
             columns: "320px",
-            columnGap: "20px",
+            columnGap: "12px",
             columnFill: "balance",
           }}
         >
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div
               key={i}
-              className="break-inside-avoid mb-4 w-full rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border)] animate-pulse h-32"
+              className="break-inside-avoid mb-3 w-full rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border)] animate-pulse h-32"
               aria-hidden
             />
           ))}
@@ -64,28 +62,37 @@ export default function Home() {
   }
 
   return (
-    <main className="pt-6 pl-[72px] pr-[72px] max-w-none">
-      <header className="flex items-start gap-3 mb-12">
+    <main className="pt-4 pl-[48px] pr-[48px] max-w-none">
+      <header className="flex items-start gap-2 mb-6">
         <div className="flex-1 min-w-0">
-          <CaptureBar onCreated={() => refresh(true)} />
+          <label className="sr-only" htmlFor="memory-search">
+            Search memories
+          </label>
+          <input
+            id="memory-search"
+            type="search"
+            value={filter.query}
+            onChange={(e) =>
+              setFilter((prev) => ({ ...prev, query: e.target.value }))
+            }
+            placeholder="Search your archive..."
+            className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-elevated)] px-5 py-5 text-2xl font-serif text-[var(--fg)] placeholder:text-[var(--fg-muted)] focus:border-[var(--border-focus)] focus:outline-none focus:ring-1 focus:ring-[var(--border-focus)]"
+            aria-label="Search memories"
+          />
         </div>
       </header>
 
-      {isEmpty ? (
-        <div className="flex flex-col items-start justify-center py-40">
-          <p className="text-[var(--fg-muted)] text-pretty text-lg tracking-tight mb-2">
-            Drop a thought into the arc.
-          </p>
-          <p className="text-sm text-[var(--fg-muted)]">
-            Paste a link, image, or type. Thoughts drift downward.
-          </p>
-        </div>
-      ) : (
-        <MemoryGrid
-          memories={filteredMemories}
-          recallScores={recallScores}
-        />
-      )}
+      <MemoryGrid
+        memories={filteredMemories}
+        recallScores={recallScores}
+        leadingCard={
+          <CaptureBar
+            onCreated={() => refresh(true)}
+            placeholder="Write a note, paste a link, or drop an image..."
+            className="[&_textarea]:min-h-[180px] [&_textarea]:max-h-[280px]"
+          />
+        }
+      />
     </main>
   );
 }
